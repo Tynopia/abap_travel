@@ -1,0 +1,73 @@
+managed implementation in class zbp_r_590076_travel unique;
+strict ( 2 );
+
+/* Transactional Behavoir for Root Entity Travel */
+define behavior for ZR_590076_Travel alias Travel
+persistent table zda590076_trvl_a
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create;
+  update;
+  delete;
+  association _Bookings { create; }
+
+  static action show_message;
+  action cancel_travel;
+
+  validation validate_period on save { create; }
+  determination determine_status on modify { update; }
+
+  field ( readonly, numbering : managed ) TravelUuid;
+  field ( mandatory : create ) BeginDate, EndDate;
+  field ( readonly : update ) BeginDate, EndDate;
+
+  mapping for zda590076_trvl_a corresponding
+    {
+      AgencyId      = agency_id;
+      BeginDate     = begin_date;
+      BookingFee    = booking_fee;
+      CreatedAt     = created_at;
+      CreatedBy     = created_by;
+      CurrencyCode  = currency_code;
+      CustomerId    = customer_id;
+      Description   = description;
+      EndDate       = end_date;
+      LastChangedAt = last_changed_at;
+      LastChangedBy = last_changed_by;
+      Status        = status;
+      TotalPrice    = total_price;
+      TravelId      = travel_id;
+      TravelUuid    = travel_uuid;
+    }
+}
+
+/* Transactional Behavoir for Child Entity Travel */
+define behavior for ZR_590076_Booking alias Booking
+persistent table z590076_book_a
+lock dependent by _Travel
+authorization dependent by _Travel
+//etag master <field_name>
+{
+  update;
+  delete;
+
+  field ( readonly, numbering : managed ) BookingUuid;
+  field ( readonly ) TravelUuid;
+
+  association _Travel;
+
+  mapping for z590076_book_a corresponding
+    {
+      BookingDate  = booking_Date;
+      BookingId    = booking_id;
+      BookingUuid  = booking_uuid;
+      CarrierId    = carrier_id;
+      ConnectionId = connection_id;
+      CurrencyCode = currency_code;
+      FlightDate   = flight_date;
+      FlightPrice  = flight_price;
+      TravelUuid   = Travel_uuid;
+    }
+}
